@@ -1,0 +1,215 @@
+---
+title: "CSEd-Refresh: Computing Courses in California"
+output: 
+  flexdashboard::flex_dashboard:
+    theme: default
+    orientation: rows
+    vertical_layout: fill
+    social: menu
+    source_code: embed
+
+---
+
+```{r setup, include=FALSE}
+library(shiny)
+library(flexdashboard)
+library(leaflet)
+library(dplyr)
+library(DT)
+library(readr)
+
+courses <- read_csv("Courses.csv")
+descriptions <- read_csv("courseDescriptions.csv")
+topoData <- readLines("caCountiesTopo.json") %>% paste(collapse = "\n")
+popup_info <- paste("<b>School:</b>", courses$schoolname, "<br>", 
+                    "<b>District</b>:", courses$districtname, "<br>",
+                    "<b>Course</b>:", courses$coursetitle, "<br>")
+
+```
+
+Sidebar {.sidebar}
+=======================================================================
+
+Use the __Map__ page to explore the computing courses offered throughout California in academic year 2014-2015. The course names are listed on the map and each one can be toggled to show or hide using the radio buttons. The __Course Descriptions__ page provides the course description for all of the computing courses and are broken down by _General Education_ and _Career Technical Education_. 
+
+The __Data Explorer__ page provides a granular look at all the computing courses offered throughout the state. Use the search bar or filter tool to focus on specific courses and regions you are interested in. This dataset can be copied, printed, and downloaded as a .csv, .xls, or .pdf.
+
+Data Source: [CDE's 14-15 Courses Taught Dataset](http://www3.cde.ca.gov/download/dq/CoursesTaught14.zip).
+
+Map
+=======================================================================
+
+```{r}
+
+m <- leaflet() %>%
+  
+  addProviderTiles("CartoDB.Positron") %>%
+  setView(lng = -117.946320, lat = 36.046033, zoom = 7) %>%
+  addTopoJSON(topoData, weight = 1, color = "#444444", fill = FALSE) %>%
+  
+  #Markers for 2451 Computer Programming
+  addCircles(data = dplyr::filter(courses,coursecode == "2451"),~lng, ~lat, 
+    popup = popup_info, weight = 3, radius = 60,
+    color = "#a6cee3", stroke = TRUE, fillOpacity = 0.8,
+    group = "2451 Computer Programming") %>%
+  
+  #Markers for 2453 Computer Science
+  addCircles(data = dplyr::filter(courses,coursecode == "2453"),~lng, ~lat, 
+    popup = popup_info, weight = 3, radius = 60,
+    color = "#1f78b4", stroke = TRUE, fillOpacity = 0.8,
+    group = "2453 Computer Science") %>%
+  
+  #Markers for 2458 Other Computer Education
+  addCircles(data = dplyr::filter(courses,coursecode == "2458"),~lng, ~lat, 
+    popup = popup_info, weight = 3, radius = 60,
+    color = "#b2df8a", stroke = TRUE, fillOpacity = 0.8,
+    group = "2458 Other Computer Education") %>%
+  
+  #Markers for 2465 IB Computer Science
+  addCircles(data = dplyr::filter(courses,coursecode == "2465"),~lng, ~lat, 
+    popup = popup_info, weight = 3, radius = 60,
+    color = "#33a02c", stroke = TRUE, fillOpacity = 0.8,
+    group = "2465 IB Computer Science") %>%
+  
+ #Markers for 2466 IB Information Technology in a Global Society
+  addCircles(data = dplyr::filter(courses,coursecode == "2466"),~lng, ~lat, 
+    popup = popup_info, weight = 3, radius = 60,
+    color = "#fb9a99", stroke = TRUE, fillOpacity = 0.8,
+    group = "2466 IB Information Technology in a Global Society") %>%
+  
+  #Markers for 2470 AP Computer Science A
+  addCircles(data = dplyr::filter(courses,coursecode == "2470"),~lng, ~lat, 
+    popup = popup_info, weight = 3, radius = 60,
+    color = "#e31a1c", stroke = TRUE, fillOpacity = 0.8,
+    group = "2470 AP Computer Science A") %>%
+  
+  #Markers for 2471 AP Computer Science AB
+  addCircles(data = dplyr::filter(courses,coursecode == "2471"),~lng, ~lat, 
+    popup = popup_info, weight = 3, radius = 60,
+    color = "#fdbf6f", stroke = TRUE, fillOpacity = 0.8,
+    group = "2471 AP Computer Science AB") %>%
+  
+  #Markers for 2479 MYP Computer Technology
+  addCircles(data = dplyr::filter(courses,coursecode == "2479"),~lng, ~lat, 
+    popup = popup_info, weight = 3, radius = 60,
+    color = "#ff7f00", stroke = TRUE, fillOpacity = 0.8,
+    group = "2479 MYP Computer Technology") %>%
+  
+  #Markers for 4601 Computer Operations / Computer Science
+  addCircles(data = dplyr::filter(courses,coursecode == "4601"),~lng, ~lat, 
+    popup = popup_info, weight = 3, radius = 60,
+    color = "#cab2d6", stroke = TRUE, fillOpacity = 0.8,
+    group = "4601 Computer Operations/Computer Science") %>%
+  
+  #Markers for 4616 Computer Programming and Game Design
+  addCircles(data = dplyr::filter(courses,coursecode == "4616"),~lng, ~lat, 
+    popup = popup_info, weight = 3, radius = 60,
+    color = "#6a3d9a", stroke = TRUE, fillOpacity = 0.8,
+    group = "4616 Computer Programming and Game Design") %>%
+  
+  #Markers for 4619 Computer Programming for Solving Applied Problems
+  addCircles(data = dplyr::filter(courses,coursecode == "4619"),~lng, ~lat, 
+    popup = popup_info, weight = 3, radius = 60,
+    color = "#ffff99", stroke = TRUE, fillOpacity = 0.8,
+    group = "4619 Computer Programming for Solving Applied Problems") %>%
+  
+  #Markers for 4634 Exploring Computer Science
+  addCircles(data = dplyr::filter(courses,coursecode == "4619"),~lng, ~lat, 
+    popup = popup_info, weight = 3, radius = 60,
+    color = "#b15928", stroke = TRUE, fillOpacity = 0.8,
+    group = "4634 Exploring Computer Science") %>%
+  
+  #Markers for 4647 Robotics Technologies
+  addCircles(data = dplyr::filter(courses,coursecode == "4647"),~lng, ~lat, 
+    popup = popup_info, weight = 3, radius = 60,
+    color = "#01665e", stroke = TRUE, fillOpacity = 0.8,
+    group = "4647 Robotics Technologies") %>%
+     
+    addLayersControl(
+      overlayGroups = c("2451 Computer Programming", "2453 Computer Science",
+                        "2458 Other Computer Education", "2465 IB Computer Science",
+                        "2466 IB Information Technology in a Global Society", 
+                        "2470 AP Computer Science A", "2471 AP Computer Science AB", 
+                        "2479 MYP Computer Technology",
+                        "4601 Computer Operations/Computer Science", 
+                        "4616 Computer Programming and Game Design",
+                        "4619 Computer Programming for Solving Applied Problems",
+                        "4634 Exploring Computer Science", "4647 Robotics Technologies"),
+      options = layersControlOptions(collapsed = FALSE)
+    )
+m
+
+```
+
+Data Explorer
+=======================================================================
+
+```{r}
+
+datatable(dplyr::select(courses,districtcode, schoolcode, countyname,
+                        districtname, schoolname, coursecode, coursetitle),
+  colnames = c('District Code', 'School Code','County','District',
+               'School','Course Code','Course Title'),
+  extensions = c('Buttons', 'FixedHeader', 'Responsive'),
+  rownames = FALSE,
+  options = list(dom = 'Bfrtip',
+    columnDefs = list(list(className = 'dt-left', targets = 0:6)),
+    buttons = list('copy', 'print', 
+      list(extend = 'collection', 
+      buttons = c('csv', 'excel', 'pdf'),
+      text = 'Download'),
+      I('colvis')),
+    pageLength = 300,
+    fixedHeader = TRUE, 
+    searchHighlight = TRUE)
+)
+```
+
+Course Descriptions
+=======================================================================
+
+Row {.tabset .tabset.fade}
+-------------------------------------
+
+### General Education
+
+```{r}
+GE <- filter(descriptions, Type == "GE") %>%
+      select(matches("Code", "Course Title", "Course Description"))
+
+datatable(GE,
+  extensions = c('Buttons', 'FixedHeader', 'Responsive'), 
+  rownames = FALSE,
+  options = list(dom = 'Bfrtip',
+    buttons = list('copy', 'print', 
+      list(extend = 'collection', 
+      buttons = c('csv', 'excel', 'pdf'),
+      text = 'Download')),
+    pageLength = 100,
+    fixedHeader = TRUE, 
+    searchHighlight = TRUE)
+)
+```
+
+### Career Technical Education
+
+```{r}
+CTE <- filter(descriptions, Type == "CTE") %>%
+       select(matches("Code", "Course Title", "Course Description"))
+
+datatable(CTE,
+  extensions = c('Buttons', 'FixedHeader'), 
+  rownames = FALSE,
+  options = list(dom = 'Bfrtip',
+    buttons = list('copy', 'print', 
+      list(extend = 'collection', 
+      buttons = c('csv', 'excel', 'pdf'),
+      text = 'Download')),
+    pageLength = 100,
+    fixedHeader = TRUE, 
+    searchHighlight = TRUE) 
+)
+```
+
+
+
